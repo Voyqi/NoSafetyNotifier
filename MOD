@@ -1,0 +1,69 @@
+        local players = game:GetService("Players")
+---------------SETTINGS
+local toCheck = {43902325,555435894,3475330729,1974276964,676600432,97001308,3717467283,212300948,29290988,998189857,132272122}--Add the UserId's of the people you want to check for
+local canLeave = false --If you want to auto leave the game then change this to true
+local canKick = true--If you have a anti client kick executed set this to false
+local notificationsEnabled = true -- set to false if the game can detect notifications
+local kickmessage = "MODERATOR DETECTED IN GAME!" --The message you want when you're kicked. canKick must be true
+-----------------
+function check(player)
+    for i,v in pairs(toCheck) do 
+        if tostring(v) == tostring(player.UserId)then
+            return true
+        end
+    end
+    return false
+end
+function notify(title,text,duritation)
+    game:GetService("StarterGui"):SetCore("SendNotification",{
+        Title = title;
+        Text = text;
+        Duritation = duritation;
+    })
+end
+function crash(o)
+    if o then
+        if kickMessage=="" then 
+        players.LocalPlayer:Kick("A player in your toCheck table is currently in this game")
+        else
+            players.LocalPlayer:kick(kickMessage)
+        end
+    else
+        pcall(function() players.LocalPlayer.Character:BreakJoints() end)--kills you
+        wait(1)
+		pcall(function()
+            local part = Instance.new("Part")
+            local d = part.TouchEnded:Connect(print)
+            part.DescendantRemoving:Connect(function()
+            d:Disconnect()
+            end)
+            part:Destroy()
+        end)--this should close your game instantly
+        while true do print('k') end--if all else fails this will freeze your game
+    end
+end
+
+for i,v in pairs(players:GetPlayers())do--I told you.
+    if check(v) and canLeave then
+        crash(canKick)
+    elseif check(v) then
+        if notificationsEnabled then
+            notify("WARNING",v.Name.." is in game and is on your detection list",5)
+        end
+    end
+end
+
+players.PlayerAdded:Connect(function(player)--I told you x2.
+    if check(player) and canLeave then
+        crash(canKick)
+    elseif check(player) then
+        if notificationsEnabled then
+            notify("WARNING",player.Name.." has joined as is on your detection list",5)
+        end
+    end
+end)
+
+
+if notificationsEnabled==false and canLeave == false and canKick == false then
+    print("The fuck are you executing this script for?")
+end
